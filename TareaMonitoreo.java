@@ -1,3 +1,7 @@
+/**
+* PROYECTO DE INVESTIGACIÓN: USABILIDAD Y AOP
+* CÓDIGO: PI315
+*/
 package ajmu;
 
 public class TareaMonitoreo extends Thread{
