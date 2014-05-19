@@ -1,3 +1,7 @@
+/**
+* PROYECTO DE INVESTIGACIÓN: USABILIDAD Y OAP
+* CÓDIGO: PI315
+*/
 package ajmu;
 
 import java.rmi.server.ObjID;
