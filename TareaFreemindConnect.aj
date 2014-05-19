@@ -1,3 +1,7 @@
+/**
+* PROYECTO DE INVESTIGACIÓN: USABILIDAD Y AOP
+* CÓDIGO: PI315
+*/
 package ajmu;
 
 import java.awt.event.ActionEvent;
@@ -6,10 +10,6 @@ public aspect TareaFreemindConnect extends TareaConnect{
 	
 	pointcut inicializacion():execution(void freemind.modes.common.actions.NewMapAction.actionPerformed(ActionEvent));
 	
-	pointcut finalizacion():execution(* freemind.modes.ControllerAdapter.SaveAsAction.*(..))||execution(* freemind.modes.ControllerAdapter.SaveAction.*(..));
-	
-	pointcut accesoDocumentacion():execution(void freemind.controller.Controller.DocumentationAction.actionPerformed(ActionEvent));
-	
 	before(): inicializacion(){
 		if (!iniciada) {
 			
@@ -17,5 +17,11 @@ public aspect TareaFreemindConnect extends TareaConnect{
 			
 		}
 	}
+	
+	pointcut finalizacion():execution(* freemind.modes.ControllerAdapter.SaveAsAction.*(..))||execution(* freemind.modes.ControllerAdapter.SaveAction.*(..));
+	
+	pointcut accesoDocumentacion():execution(void freemind.controller.Controller.DocumentationAction.actionPerformed(ActionEvent));
+	
+	
 	
 }
