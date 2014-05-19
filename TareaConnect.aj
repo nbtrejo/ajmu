@@ -1,3 +1,7 @@
+/**
+* PROYECTO DE INVESTIGACIÓN: USABILIDAD Y AOP
+* CÓDIGO: PI315
+*/
 package ajmu;
 
 import java.awt.Dialog;
@@ -40,7 +44,6 @@ abstract aspect TareaConnect{
 	 * @param tipoMensaje parametro del m�todo show*Dialog que especifica el tipo de icono mostrado
 	 * @return nombre del icono
 	 * */
-	
 	private String tipoIconoMensajeJOption(Object tipoMensaje) {
 		
 		String auxTipo = null;
@@ -61,30 +64,6 @@ abstract aspect TareaConnect{
 	 */
 	abstract pointcut inicializacion();
 	
-	/**
-	 * POINTCUT FINALIZACION()
-	 * Descripción: Define el conjunto de puntos de corte que marcan el fin de la tarea cuya usabilidad se desea estudiar.
-	 */
-	abstract pointcut finalizacion();
-	
-	abstract pointcut accesoDocumentacion();
-	
-	/**
-	 * POINCUT REGISTRAREXCEPCIONES()
-	 * Descripción: Captura las excepciones gestionadas por catch, en el flujo de control iniciado por el pointcut inicializacion()
-	 */
-	pointcut excepcionesAlInicio(Throwable e): cflow(inicializacion())&&!cflow(adviceexecution())&&handler(Throwable+)&&args(e);
-	
-	
-	before(): accesoDocumentacion(){
-		if((miTarea!=null)&&(!miTarea.isCompleta())){	
-			 
-			miTarea.setCantAccesosDocumentacion();
-					
-		}
-	}
-	
-	
 	before(): inicializacion(){
 		if (!iniciada) {
 			
@@ -93,6 +72,13 @@ abstract aspect TareaConnect{
 			monitor.start();
 		}
 	}
+	
+	/**
+	 * POINTCUT FINALIZACION()
+	 * Descripción: Define el conjunto de puntos de corte que marcan el fin de la tarea cuya usabilidad se desea estudiar.
+	 */
+	abstract pointcut finalizacion();
+	
 	/**
 	 * The implementation for the after advice without returning needs to use a try/catch block
 	 * 
@@ -106,7 +92,26 @@ abstract aspect TareaConnect{
 		nroDialogo	= 0;
 		
 	}
+
+	/**
+	 * POINTCUT ACCESODOCUMENTACION()
+	 * Descripción: Define el conjunto de puntos de corte que indican el acceso a documentacion del sistema, disponible para usuario.
+	 */
+	abstract pointcut accesoDocumentacion();
 	
+	before(): accesoDocumentacion(){
+		if((miTarea!=null)&&(!miTarea.isCompleta())){	
+			 
+			miTarea.setCantAccesosDocumentacion();
+					
+		}
+	}
+	
+	/**
+	 * POINCUT REGISTRAREXCEPCIONES()
+	 * Descripción: Captura las excepciones gestionadas por catch, en el flujo de control iniciado por el pointcut inicializacion()
+	 */
+	pointcut excepcionesAlInicio(Throwable e): cflow(inicializacion())&&!cflow(adviceexecution())&&handler(Throwable+)&&args(e);
 	before(Throwable e): excepcionesAlInicio(e){
 		
 		Signature sig = thisJoinPointStaticPart.getSignature();
@@ -121,10 +126,12 @@ abstract aspect TareaConnect{
 		TareaLogger.aspectOf().grabar(reg);
 		
 	}
+	
 	/**
 	 * Descripción: Captura las excepciones gestionadas por catch, en el flujo de control LUEGO de la accion definida en pointcut inicializacion()
 	 */
 	pointcut excepcionesEnEjecucion(Throwable e):!cflow(inicializacion())&&!cflow(adviceexecution())&&handler(Throwable+)&&args(e);
+	
 	before(Throwable e):excepcionesEnEjecucion(e){
 		if((miTarea!=null)&&(!miTarea.isCompleta())){			 
 			Signature sig = thisJoinPointStaticPart.getSignature();
@@ -140,10 +147,12 @@ abstract aspect TareaConnect{
 						
 		}
 	}
+	
 	/**
 	 * Descripción: La tarea inicia pero no finaliza
 	 */	
 	pointcut noFinalizoTarea():call(void java.lang.System.exit(..))&&!cflow(finalizacion())&&!cflow(adviceexecution());
+	
 	before(): noFinalizoTarea() {	
 		if((miTarea!=null)&&(!miTarea.isCompleta())){
 			TareaLogger.aspectOf().grabar("================= RESULTADOS FINALES ====================");
@@ -166,6 +175,7 @@ abstract aspect TareaConnect{
 	 */	
 	
 	pointcut capturaDialogo(Dialog jd): !cflow(inicializacion())&&!cflow(adviceexecution()) && call( * *Dialog(..)) && target(jd);	
+	
 	before(Dialog jd): capturaDialogo(jd){
 		if((miTarea!=null)&&(!miTarea.isCompleta())){	
 			if (thisJoinPoint.getTarget().getClass().getSuperclass().getCanonicalName().equals("javax.swing.JDialog") ||
