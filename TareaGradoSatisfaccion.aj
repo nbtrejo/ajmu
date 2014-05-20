@@ -22,11 +22,11 @@ public aspect TareaGradoSatisfaccion {
 	pointcut registrarDatos(Tarea t):execution(void Tarea.finaliza(..))&&this(t);
 	
 	before(Tarea t): registrarDatos(t){
-		Object[] opciones = {"Muy buena", "Buena", "regular", "mala"};
+		Object[] opciones = {"Muy buena", "Buena", "Regular", "Mala"};
 		String s = (String)JOptionPane.showInputDialog(
 		                    null,
 		                    "Por favor:\n"
-		                    + "\"Indique su grado de satisfacción con la aplicación para realizar la tarea:...\"",
+		                    + "\"Indique su grado de satisfacción con la aplicación \n para realizar la tarea:"+ t.getDescripcion() +"\"",
 		                    "Grado de Satisfacción",
 		                    JOptionPane.PLAIN_MESSAGE,	
 		                    icon,
