@@ -1,22 +1,26 @@
 /**
-* PROYECTO DE INVESTIGACIÓN: USABILIDAD Y OAP
-* CÓDIGO: PI315
+* 
+* PROYECTO DE INVESTIGACIÓN
+* USABILIDAD & AOP: DESARROLLO Y EVALUACIÓN DE UN FRAMEWORK DE DOMINIO.
+* (2014-2015)
+* CÓDIGO: 29/A315
+* 
+* MÁS INFORMACIÓN EN {@link https://sites.google.com/site/profeprog/proyecto5}
+* 
 */
 package ajmu;
 
 import java.rmi.server.ObjID;
 
 public class Tarea {
-	//private long id;
+	
 	private ObjID id;
 	private boolean completa;
 	private Long inicializacion,finalizacion;
 	private int cantExcepciones;
 	private String descripcion;
-	//para ventanas de dialogo
 	private int cantDialogos;
 	private int cantAccesosDocumentacion;
-	//mensajes por tipo de icono
 	private int cantMensajesSinIcono;
 	private int cantMensajesIconoError;
 	private int cantMensajesIconoInformativo;
@@ -25,8 +29,6 @@ public class Tarea {
 	private String gradoSatisfaccion;
     
 	public Tarea(String desc) {
-		
-		//id = this.hashCode();
 		id	= new ObjID();
 		completa = false;
 		inicializacion = System.currentTimeMillis();
@@ -37,87 +39,51 @@ public class Tarea {
 		gradoSatisfaccion = "No sabe / No responde";
 	}
 	
-	public String getGradoSatisfaccion() {
-		return gradoSatisfaccion;
-	}
-
 	public void setGradoSatisfaccion(String gradoSatisfaccion) {
 		this.gradoSatisfaccion = gradoSatisfaccion;
 	}
-
-	
-	public String getDescripcion() {
-		return descripcion;
+	public String getGradoSatisfaccion() {
+		return gradoSatisfaccion;
 	}
-
 	public void setDescripcion(String descripcion) {
 		this.descripcion = descripcion;
 	}
-	
-	//public long getId() {
+	public String getDescripcion() {
+		return descripcion;
+	}
 	public ObjID getId() {
 		return id;
 	}
-	
 	public boolean isCompleta() {
 		return completa;
 	}
-
 	public Long getInicializacion() {
 		return inicializacion;
 	}
-
 	public Long getFinalizacion() {
 		return finalizacion;
 	}
-	
-	//public void finaliza(ObjID id){
 	public void finaliza(){	
 			finalizacion = System.currentTimeMillis();
-			completa = true;
-			
+			completa = true;		
 	}
-	
-	public Long tiempoDeEjecucion(){
-		return finalizacion - inicializacion;
-	}
-	
-	public String tiempoDeEjecucionSeg(){
-		Long tejecucion = finalizacion - inicializacion;
-		
-		Long horas = tejecucion / 3600000;
-		Long restoHoras = tejecucion%3600000;
-		
-		Long minutos = restoHoras / 60000;
-		Long restoMinutos = restoHoras%60000;
-		
-		Long segundos = restoMinutos / 1000;
-		Long restoSegundos = restoMinutos%1000;
-		
-		return horas + ":" + minutos + ":" + segundos + "." + restoSegundos;
-		
-	}
-	
-	public int getCantExcepciones() {
-		return cantExcepciones;
-	}
-
 	public void setCantExcepciones() {
 		this.cantExcepciones++;
 	}
-	
-	public int getCantDialogos() {
-		return cantDialogos;
+	public int getCantExcepciones() {
+		return cantExcepciones;
 	}
-
 	public void setCantDialogos() {
 		this.cantDialogos++;
 	}
-	public int getCantAccesosDocumentacion(){
-		return this.cantAccesosDocumentacion;
+	public int getCantDialogos() {
+		return cantDialogos;
 	}
 	public void setCantAccesosDocumentacion(){
 		this.cantAccesosDocumentacion++;
+	}
+	public int getCantAccesosDocumentacion(){
+		return this.cantAccesosDocumentacion;
 	}
 	public void setCantMensajesSinIcono() {
 		this.cantMensajesSinIcono++;
@@ -149,4 +115,22 @@ public class Tarea {
 	public int getCantMensajesIconoPregunta() {
 		return this.cantMensajesIconoPregunta;
 	} 
+	
+	public Long tiempoDeEjecucion(){
+		return finalizacion - inicializacion;
+	}
+	public String tiempoDeEjecucionSeg(){
+		Long tejecucion = finalizacion - inicializacion;
+		
+		Long horas = tejecucion / 3600000;
+		Long restoHoras = tejecucion%3600000;
+		
+		Long minutos = restoHoras / 60000;
+		Long restoMinutos = restoHoras%60000;
+		
+		Long segundos = restoMinutos / 1000;
+		Long restoSegundos = restoMinutos%1000;
+		
+		return horas + ":" + minutos + ":" + segundos + "." + restoSegundos;	
+	}
 }

@@ -1,13 +1,18 @@
 /**
-* PROYECTO DE INVESTIGACIÓN: USABILIDAD Y AOP
-* CÓDIGO: PI315
+* 
+* PROYECTO DE INVESTIGACIÓN
+* USABILIDAD & AOP: DESARROLLO Y EVALUACIÓN DE UN FRAMEWORK DE DOMINIO.
+* (2014-2015)
+* CÓDIGO: 29/A315
+* 
+* MÁS INFORMACIÓN EN {@link https://sites.google.com/site/profeprog/proyecto5}
+* 
 */
 package ajmu;
 
 public class TareaMonitoreo extends Thread{
 	Tarea tareaMonitoreada = null;
 	public TareaMonitoreo(Tarea t) {
-		// TODO Auto-generated constructor stub
 		tareaMonitoreada = t;
 	}
 	public void run(){

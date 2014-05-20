@@ -1,6 +1,12 @@
 /**
-* PROYECTO DE INVESTIGACIÓN: USABILIDAD Y AOP
-* CÓDIGO: PI315
+* 
+* PROYECTO DE INVESTIGACIÓN
+* USABILIDAD & AOP: DESARROLLO Y EVALUACIÓN DE UN FRAMEWORK DE DOMINIO.
+* (2014-2015)
+* CÓDIGO: 29/A315
+* 
+* MÁS INFORMACIÓN EN {@link https://sites.google.com/site/profeprog/proyecto5}
+* 
 */
 package ajmu;
 
@@ -14,59 +20,25 @@ import javax.swing.JOptionPane;
 import org.aspectj.lang.Signature;
 
 abstract aspect TareaConnect{
+
 	boolean iniciada	= false;	
 	Tarea miTarea = null;
 	private int nroEvento = 0;
-	//para ventans de dialogo
 	private int nroDialogo	= 0;
 	TareaMonitoreo monitor = null;
 	
-	
 	/**
-	 * EXTRAER string del tipo del metodo show*Dialog de JOptionPane
-	 * @param nombreMetodoShow nombre del metodo show*Dialog de clase JOptionPane
-	 * @return substring con nombre del tipo de JOptionPane : Message,Option,Input,Confirm, InternalMessage, InternalOption, InternalInput, InternalConfirm 
-	 * */	
-	private String strTipoJOption(String nombreMetodoShow) {
-		
-		Pattern pattern = Pattern.compile("(?<=show).*.(?=Dialog)");
-		Matcher matcher = pattern.matcher(nombreMetodoShow);
-		String auxTipo = null;		
-		        
-		while (matcher.find()) {			
-			auxTipo = matcher.group().toString();		           
-		}		
-		return auxTipo;		        
-	}
-	
-	/**
-	 * EXTRAER nombre del icono del mensaje del JOPTIONPANE
-	 * @param tipoMensaje parametro del m�todo show*Dialog que especifica el tipo de icono mostrado
-	 * @return nombre del icono
-	 * */
-	private String tipoIconoMensajeJOption(Object tipoMensaje) {
-		
-		String auxTipo = null;
-		
-		switch (Integer.parseInt(tipoMensaje.toString())){
-		case JOptionPane.ERROR_MESSAGE : auxTipo= "ERROR";break;
-		case JOptionPane.INFORMATION_MESSAGE: auxTipo= "INFORMATIVO";break;
-		case JOptionPane.PLAIN_MESSAGE: auxTipo= "SIN ICONO"; break;
-		case JOptionPane.QUESTION_MESSAGE: auxTipo= "INTERROGATIVO"; break;
-		case JOptionPane.WARNING_MESSAGE: auxTipo= "ADVERTENCIA"; break;
-		}
-		return auxTipo;       
-	}
-	
-	/**
-	 * POINTCUT INICIALIZACION()
-	 * Descripción: Define el conjunto de puntos de corte que marcan el inicio de la tarea cuya usabilidad se desea estudiar.
+	 * POINTCUT inicializacion()
+	 * Define el conjunto de puntos de corte que marcan el inicio de la tarea cuya usabilidad se desea estudiar.
 	 */
 	abstract pointcut inicializacion();
-	
+	/**
+	 * ADVICE before()
+	 * Si la tarea aún no ha iniciado, cambia el estado del atributo iniciada a true, crea un objeto de la clase
+	 * TareaMonitoreo y activa el ciclo de control sobre la tarea miTarea. 
+	 */
 	before(): inicializacion(){
 		if (!iniciada) {
-			
 			iniciada = true;
 			monitor = new TareaMonitoreo(miTarea);
 			monitor.start();
@@ -74,14 +46,14 @@ abstract aspect TareaConnect{
 	}
 	
 	/**
-	 * POINTCUT FINALIZACION()
-	 * Descripción: Define el conjunto de puntos de corte que marcan el fin de la tarea cuya usabilidad se desea estudiar.
+	 * POINTCUT finalizacion()
+	 * Define el conjunto de puntos de corte que marcan el fin de la tarea cuya usabilidad se desea estudiar.
 	 */
 	abstract pointcut finalizacion();
-	
 	/**
-	 * The implementation for the after advice without returning needs to use a try/catch block
-	 * 
+	 * ADVICE after() returning.
+	 * Si la tarea se encuentra iniciada cuando alguno de los joinpoints es capturado, entonces cambia el estado
+	 * de la tarea a finalizada e inicializa los atributos del aspecto.  
 	 */	 
 	after() returning: finalizacion(){
 		if (iniciada) {
@@ -89,29 +61,34 @@ abstract aspect TareaConnect{
 		}
 		iniciada = false;
 		nroEvento	= 0;
-		nroDialogo	= 0;
-		
+		nroDialogo	= 0;		
 	}
-
 	/**
-	 * POINTCUT ACCESODOCUMENTACION()
-	 * Descripción: Define el conjunto de puntos de corte que indican el acceso a documentacion del sistema, disponible para usuario.
+	 * POINTCUT accesoDocumentacion()
+	 * Define el conjunto de puntos de corte que indican el acceso a documentacion del sistema, disponible para usuario.
 	 */
 	abstract pointcut accesoDocumentacion();
-	
+	/**
+	 * ADVICE before()
+	 * Si la tarea se encuentra en ejecución, es decir que existe un objeto miTarea que aún no se ha completado, entonces
+	 * contabiliza los accesos a la documentación.  
+	 */
 	before(): accesoDocumentacion(){
 		if((miTarea!=null)&&(!miTarea.isCompleta())){	
-			 
 			miTarea.setCantAccesosDocumentacion();
-					
 		}
 	}
 	
 	/**
-	 * POINCUT REGISTRAREXCEPCIONES()
-	 * Descripción: Captura las excepciones gestionadas por catch, en el flujo de control iniciado por el pointcut inicializacion()
+	 * POINCUT excepcionesAlInicio()
+	 * Captura las excepciones gestionadas por catch, en el flujo de control iniciado por el pointcut inicializacion()
 	 */
 	pointcut excepcionesAlInicio(Throwable e): cflow(inicializacion())&&!cflow(adviceexecution())&&handler(Throwable+)&&args(e);
+	/**
+	 * ADVICE before()
+	 * Cuando una excepción es capturada, se registra en el log invocando al aspecto TareaLogger, y se contabiliza su ocurrencia en el objeto miTarea. 
+	 * @param e es un objeto de la clase Throwable de la cual heredan los diferentes tipos de excepciones que pueden ocurrir en una aplicación.
+	 */
 	before(Throwable e): excepcionesAlInicio(e){
 		
 		Signature sig = thisJoinPointStaticPart.getSignature();
@@ -126,12 +103,16 @@ abstract aspect TareaConnect{
 		TareaLogger.aspectOf().grabar(reg);
 		
 	}
-	
 	/**
-	 * Descripción: Captura las excepciones gestionadas por catch, en el flujo de control LUEGO de la accion definida en pointcut inicializacion()
+	 * POINTCUT excepcionesEnEjecucion()
+	 * Captura las excepciones gestionadas por catch, en el flujo de control LUEGO de la accion definida en pointcut inicializacion()
 	 */
 	pointcut excepcionesEnEjecucion(Throwable e):!cflow(inicializacion())&&!cflow(adviceexecution())&&handler(Throwable+)&&args(e);
-	
+	/**
+	 * ADVICE before()
+	 * Cuando una excepción es capturada, se registra en el log invocando al aspecto TareaLogger, y se contabiliza su ocurrencia en el objeto miTarea.
+	 * @param e es un objeto de la clase Throwable de la cual heredan los diferentes tipos de excepciones que pueden ocurrir en una aplicación.
+	 */
 	before(Throwable e):excepcionesEnEjecucion(e){
 		if((miTarea!=null)&&(!miTarea.isCompleta())){			 
 			Signature sig = thisJoinPointStaticPart.getSignature();
@@ -147,12 +128,16 @@ abstract aspect TareaConnect{
 						
 		}
 	}
-	
 	/**
-	 * Descripción: La tarea inicia pero no finaliza
-	 */	
+	 * POINTCUT noFinalizoTarea()
+	 * Captura el cierre de la aplicación cuando la tarea aún no finaliza
+	 */
 	pointcut noFinalizoTarea():call(void java.lang.System.exit(..))&&!cflow(finalizacion())&&!cflow(adviceexecution());
-	
+	/**
+	 * ADVICE before()
+	 * Si el cierre inesperado de la aplicación es capturado cuando la tarea aún no ha finalizado, se registra el estado de los contadores
+	 * en el log a través del aspecto TareaLogger. 
+	 */
 	before(): noFinalizoTarea() {	
 		if((miTarea!=null)&&(!miTarea.isCompleta())){
 			TareaLogger.aspectOf().grabar("================= RESULTADOS FINALES ====================");
@@ -167,15 +152,18 @@ abstract aspect TareaConnect{
 			TareaLogger.aspectOf().grabar("Mensajes interrogativos: " + miTarea.getCantMensajesIconoPregunta());
 		}
 	}
-
-
 	/**
-	 * 
-	 * Descripción: Captura ventanas de tipo Dialog gestionadas en el flujo de control LUEGO de la accion definida en pointcut inicializacion()
-	 */	
-	
-	pointcut capturaDialogo(Dialog jd): !cflow(inicializacion())&&!cflow(adviceexecution()) && call( * *Dialog(..)) && target(jd);	
-	
+	 * POINTCUT capturaDialogo()
+	 * Captura ventanas de tipo Dialog gestionadas en el flujo de control LUEGO de la accion definida en pointcut inicializacion()
+	 */
+	pointcut capturaDialogo(Dialog jd): !cflow(inicializacion())&&!cflow(adviceexecution()) && call( * *Dialog(..)) && target(jd);
+	/**
+	 * ADVICE before()
+	 * Registra información de la ventana de tipo Dialog cuando ésta es capturada por el pointcut.
+	 * Se registra el título de la ventana y la línea y clase desde la cual ocurrió la llamada.
+	 * También se contabiliza el atributo cantDialogos del objeto miTarea.
+	 * @param jd puede ser cualquier objeto de tipo Dialog o JDialog.
+	 */
 	before(Dialog jd): capturaDialogo(jd){
 		if((miTarea!=null)&&(!miTarea.isCompleta())){	
 			if (thisJoinPoint.getTarget().getClass().getSuperclass().getCanonicalName().equals("javax.swing.JDialog") ||
@@ -195,13 +183,17 @@ abstract aspect TareaConnect{
 			}		
 		}
 	}
-	
 	/**
-	 * 
-	 * Descripción: Captura ventanas de tipo JOptionPane gestionadas en el flujo de control LUEGO de la accion definida en pointcut inicializacion()
+	 * POINTCUT capturaOptionPane()
+	 * Captura ventanas de tipo JOptionPane gestionadas en el flujo de control LUEGO de la accion definida en pointcut inicializacion()
 	 */
-	pointcut capturaOptionPane(): !cflow(inicializacion())&&!cflow(adviceexecution())&&call(* javax.swing.JOptionPane+.show*Dialog(..)) && !within(ajmu.TareaGradoSatisfacccion.*);	
-		
+	pointcut capturaOptionPane(): !cflow(inicializacion())&&!cflow(adviceexecution())&&call(* javax.swing.JOptionPane+.show*Dialog(..)) && !within(ajmu.TareaGradoSatisfacccion.*);
+	/**
+	 * ADVICE before()
+	 * cuando una ventana de tipo JOptionPane es capturada, se analiza si se trata de un mensaje informativo, una advertencia, 
+	 * una pregunta, o un error. Luego, se registra en el log mediante el aspecto TareaLogger y se contabiliza seteando el 
+	 * atributo correspondiente en el objeto miTarea.
+	 */
 	before(): capturaOptionPane(){ 
 		if((miTarea!=null)&&(!miTarea.isCompleta())){
 			String tipoJOptionPane	= strTipoJOption(thisJoinPoint.getSignature().getName());
@@ -268,5 +260,39 @@ abstract aspect TareaConnect{
 			TareaLogger.aspectOf().grabar(reg);
 				
 		}
+	}
+	/**
+	 * EXTRAER string del tipo del metodo show*Dialog de JOptionPane
+	 * @param nombreMetodoShow nombre del metodo show*Dialog de clase JOptionPane
+	 * @return substring con nombre del tipo de JOptionPane : Message,Option,Input,Confirm, InternalMessage, InternalOption, InternalInput, InternalConfirm 
+	 * */	
+	private String strTipoJOption(String nombreMetodoShow) {
+		
+		Pattern pattern = Pattern.compile("(?<=show).*.(?=Dialog)");
+		Matcher matcher = pattern.matcher(nombreMetodoShow);
+		String auxTipo = null;		
+		        
+		while (matcher.find()) {			
+			auxTipo = matcher.group().toString();		           
+		}		
+		return auxTipo;		        
+	}
+	/**
+	 * EXTRAER nombre del icono del mensaje del JOPTIONPANE
+	 * @param tipoMensaje parametro del método show*Dialog que especifica el tipo de icono mostrado
+	 * @return nombre del icono
+	 * */
+	private String tipoIconoMensajeJOption(Object tipoMensaje) {
+		
+		String auxTipo = null;
+		
+		switch (Integer.parseInt(tipoMensaje.toString())){
+		case JOptionPane.ERROR_MESSAGE : auxTipo= "ERROR";break;
+		case JOptionPane.INFORMATION_MESSAGE: auxTipo= "INFORMATIVO";break;
+		case JOptionPane.PLAIN_MESSAGE: auxTipo= "SIN ICONO"; break;
+		case JOptionPane.QUESTION_MESSAGE: auxTipo= "INTERROGATIVO"; break;
+		case JOptionPane.WARNING_MESSAGE: auxTipo= "ADVERTENCIA"; break;
+		}
+		return auxTipo;       
 	}
 }
