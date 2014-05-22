@@ -21,11 +21,12 @@ import org.aspectj.lang.Signature;
 
 abstract aspect TareaConnect{
 
+	static boolean connectOcupado = false;
 	boolean iniciada	= false;	
 	Tarea miTarea = null;
 	private int nroEvento = 0;
 	private int nroDialogo	= 0;
-	TareaMonitoreo monitor = null;
+	static TareaMonitoreo monitor = null;
 	
 	/**
 	 * POINTCUT inicializacion()
@@ -38,10 +39,13 @@ abstract aspect TareaConnect{
 	 * TareaMonitoreo y activa el ciclo de control sobre la tarea miTarea. 
 	 */
 	before(): inicializacion(){
-		if (!iniciada) {
-			iniciada = true;
-			monitor = new TareaMonitoreo(miTarea);
-			monitor.start();
+		if(!connectOcupado){
+			if (!iniciada) {
+				iniciada = true;
+				connectOcupado = true;
+				monitor = new TareaMonitoreo(miTarea);
+				monitor.start();
+			}
 		}
 	}
 	
@@ -60,6 +64,7 @@ abstract aspect TareaConnect{
 			miTarea.finaliza();	
 		}
 		iniciada = false;
+		connectOcupado = false;
 		nroEvento	= 0;
 		nroDialogo	= 0;		
 	}

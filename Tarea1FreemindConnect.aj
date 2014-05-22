@@ -37,10 +37,12 @@ public aspect Tarea1FreemindConnect extends TareaConnect{
 	pointcut inicializacion():execution(void freemind.modes.common.actions.NewMapAction.actionPerformed(ActionEvent));
 	
 	before(): inicializacion(){
-		if (!iniciada) {
-			
-			miTarea = new Tarea("Tarea: Creación de un Mapa Conceptual Básico");
-			
+		if(!connectOcupado){
+			if (!iniciada) {
+				
+				miTarea = new Tarea("Tarea: Creación de un Mapa Conceptual Básico");
+				
+			}
 		}
 	}
 	
