@@ -12,6 +12,30 @@ package ajmu;
 
 import java.awt.event.ActionEvent;
 
+/**
+ * Tarea3FreemindConnect. Declara los pointcut de inicio y fin de la tarea que se define a continuación.
+ * 
+ * Tarea3: Abrir un mapa existente y editarlo.
+ * 
+ * Descripción: En esta tarea, el usuario deberá abrir un mapa ya existente, facilitado a los efectos del experimento, para su edición.
+ * Para ello deberá seleccionar la opción abrir desde el menú principal o desde la barra de herramientas.
+ * Una vez abierto el mapa, se le solicitará:
+ * > eliminar dos nodos.
+ * > agregar al menos 3 nodos hijos y 3 nodos hermanos.
+ * > asignar prioridad a los nodos.
+ * > cambiar el formato del nodo padre.
+ * Finalmente se pedirá que guarde el mapa conceptual con el su nombre de la siguienta manera: Tarea1_APELLIDONombre.mm (Ej. Tarea1_PEREZJuan.mm).
+ * 
+ * Inicio de la tarea: La tarea se considerará iniciada luego de que el usuario haya seleccionado la opción "Abrir" del 
+ * menú principal o desde la barra de herramientas.
+ * 
+ * Fin de la tarea: La tarea se considerará finalizada luego de que el usuario guarde, por primera vez, el mapa en un archivo 
+ * con el nombre solicitado. 
+ * 
+ * @author PI-315
+ *
+ */
+
 public aspect Tarea3FreemindConnect extends TareaConnect{
 	
 	pointcut inicializacion():execution(void freemind.modes.ControllerAdapter.OpenAction.actionPerformed(ActionEvent));
