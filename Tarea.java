@@ -10,11 +10,10 @@
 */
 package ajmu;
 
-import java.rmi.server.ObjID;
 
-public class Tarea {
+public class Tarea {	
 	
-	private ObjID id;
+	private String id;
 	private boolean completa;
 	private Long inicializacion,finalizacion;
 	private int cantExcepciones;
@@ -28,8 +27,8 @@ public class Tarea {
 	private int cantMensajesIconoPregunta;
 	private String gradoSatisfaccion;
     
-	public Tarea(String desc) {
-		id	= new ObjID();
+	public Tarea(String desc) {		
+		id	= desc.replaceAll(" ", "_") + "_"+ System.currentTimeMillis();
 		completa = false;
 		inicializacion = System.currentTimeMillis();
 		finalizacion = null;
@@ -50,8 +49,8 @@ public class Tarea {
 	}
 	public String getDescripcion() {
 		return descripcion;
-	}
-	public ObjID getId() {
+	}	
+	public String getId() {
 		return id;
 	}
 	public boolean isCompleta() {
