@@ -24,13 +24,12 @@ import java.awt.event.ActionEvent;
  * > agregar al menos 3 nodos hijos y 3 nodos hermanos.
  * > asignar prioridad a los nodos.
  * > cambiar el formato del nodo padre.
- * Finalmente se pedirá que guarde el mapa conceptual con el su nombre de la siguienta manera: Tarea1_APELLIDONombre.mm (Ej. Tarea1_PEREZJuan.mm).
+ * Finalmente se pedirá que guarde el mapa mental en el escritorio de su ordenador con un nombre significativo.
  * 
  * Inicio de la tarea: La tarea se considerará iniciada luego de que el usuario haya seleccionado la opción "Abrir" del 
  * menú principal o desde la barra de herramientas.
  * 
- * Fin de la tarea: La tarea se considerará finalizada luego de que el usuario guarde, por primera vez, el mapa en un archivo 
- * con el nombre solicitado. 
+ * Fin de la tarea: La tarea se considerará finalizada luego de que el usuario guarde, por primera vez, el mapa en el escritorio.
  * 
  * @author PI-315
  *

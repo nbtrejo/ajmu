@@ -17,17 +17,16 @@ import java.awt.event.ActionEvent;
  * Tarea1: Creación de un Mapa Mental Básico.
  * 
  * Descripción: En esta tarea, el usuario deberá crear un nuevo mapa desde el menú principal o desde la barra de herramientas.
- * Luego, mediantes las diferentes opciones que ofrece la aplicación, deberá agregar al mapa al menos 11 nodos, 
- * incluyendo al nodo raíz, organizados en una jerarquía de al menos tres niveles. 
- * Se podrán solicitar a los usuario, que apliquen funciones de formateo, tal como cambiar el color del nodo principal, su morfología, 
- * el tamaño de la fuente, etc.
- * Finalmente se pedirá que guarde el mapa conceptual con el su nombre de la siguienta manera: MapaBásico_APELLIDONombre.mm (Ej. MapaBásico_PEREZJuan.mm).
+ * Luego, mediante las diferentes opciones que ofrece la aplicación, deberá agregar, al menos, 10 nodos, organizados en una jerarquía 
+ * de al menos tres niveles. 
+ * Se podrán solicitar a los usuario que apliquen formato, tal como cambiar el color del nodo principal, su morfología, el tamaño de 
+ * la fuente, etc.
+ * Finalmente se pedirá que guarde el mapa conceptual en el escritorio de su ordenador con un nombre significativo.
  * 
- * Inicio de la tarea: La tarea se considerará iniciada luego de que el usuario haya seleccionado la opción "Nuevo Mapa" del 
+ * Inicio de la tarea: La tarea se considerará iniciada luego de que el usuario haya seleccionado la opción "Nuevo" del 
  * menú principal o desde la barra de herramientas.
  * 
- * Fin de la tarea: La tarea se considerará finalizada luego de que el usuario guarde, por primera vez, el mapa en un archivo 
- * con el nombre solicitado. 
+ * Fin de la tarea: La tarea se considerará finalizada luego de que el usuario guarde, por primera vez, el mapa en el escritorio. 
  * 
  * @author PI-315
  *
