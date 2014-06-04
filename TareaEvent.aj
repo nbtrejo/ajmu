@@ -1,3 +1,13 @@
+/**
+* 
+* PROYECTO DE INVESTIGACIÓN
+* USABILIDAD & AOP: DESARROLLO Y EVALUACIÓN DE UN FRAMEWORK DE DOMINIO.
+* (2014-2015)
+* CÓDIGO: 29/A315
+* 
+* MÁS INFORMACIÓN EN {@link https://sites.google.com/site/profeprog/proyecto5}
+* 
+*/
 package ajmu;
 
 import java.awt.Dialog;
@@ -10,21 +20,21 @@ import org.aspectj.lang.Signature;
 
 public aspect TareaEvent pertarget(addTarea()){
 	
-	/**
-	 * POINCUT excepcionesAlInicio()
-	 * Captura las excepciones gestionadas por catch, en el flujo de control iniciado por el pointcut inicializacion()
-	 */
 	
 	int nroEvento = 0;
 	int nroDialogo	= 0;
 	Tarea t = null;
 	pointcut addTarea():initialization(Tarea.new(String));
-	pointcut detectarTarea(Tarea tar) : addTarea()&&this(tar);
 	
+	pointcut detectarTarea(Tarea tar) : addTarea()&&this(tar);
 	before(Tarea tar): detectarTarea(tar){
 		t = tar;
 	}
 	
+	/**
+	 * POINCUT excepcionesAlInicio()
+	 * Captura las excepciones gestionadas por catch, en el flujo de control iniciado por el pointcut inicializacion()
+	 */
 	pointcut excepcionesAlInicio(Throwable e):!cflow(adviceexecution())&&handler(Throwable+)&&args(e);
 	/**
 	 * ADVICE before()
@@ -37,9 +47,9 @@ public aspect TareaEvent pertarget(addTarea()){
         String line =""+ thisJoinPointStaticPart.getSourceLocation().getLine();
         String sourceName = thisJoinPointStaticPart.getSourceLocation().getWithinType().getCanonicalName();
         
-        String reg = "Excepción " + nroEvento +": Ocurrió una excepción en "+ sourceName+ "("+ kind +") línea " + line + " en el método " + sig + "(" + thisJoinPoint.toLongString() + ") Mensaje del error: " + e.getMessage();
+        String reg = "Excepción " + ++nroEvento +": Ocurrió una excepción en "+ sourceName+ "("+ kind +") línea " + line + " en el método " + sig + "(" + thisJoinPoint.toLongString() + ") Mensaje del error: " + e.getMessage();
 		
-        t.getCantExcepciones();
+        t.setCantExcepciones();
 		
 		TareaLogger.aspectOf().grabar(reg);
 		
