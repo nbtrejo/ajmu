@@ -132,4 +132,5 @@ public class Tarea {
 		
 		return horas + ":" + minutos + ":" + segundos + "." + restoSegundos;	
 	}
+    
 }

@@ -3,7 +3,7 @@
 * PROYECTO DE INVESTIGACIÓN
 * USABILIDAD & AOP: DESARROLLO Y EVALUACIÓN DE UN FRAMEWORK DE DOMINIO.
 * (2014-2015)
-* CÓDIGO: 29/A315
+* CÓDIGO: 29/A315 
 * 
 * MÁS INFORMACIÓN EN {@link https://sites.google.com/site/profeprog/proyecto5}
 * 
@@ -23,6 +23,7 @@ public aspect TareaLogger {
 	after(Tarea t): registrarInicio(t){
 		loggerTarea.info("===================== INICIO TAREA: "+ t.getDescripcion() +" =========================");
 		loggerTarea.info("La tarea id " + t.getId() + " ha sido iniciada.");
+		t = null;
 	}
 	
 	pointcut registrarDatos(Tarea t):execution(void Tarea.finaliza(..))&&this(t);
@@ -40,6 +41,7 @@ public aspect TareaLogger {
 		loggerTarea.info("Mensajes informativos: " + t.getCantMensajesIconoInformativo());
 		loggerTarea.info("Mensajes interrogativos: " + t.getCantMensajesIconoPregunta());
 		loggerTarea.info("Sastifaccion: " + t.getGradoSatisfaccion());
+		t = null;
 	}
 	public void registrarDatosParciales(Tarea t){
 		loggerTarea.info("================= RESULTADOS PARCIALES ====================");
@@ -52,6 +54,7 @@ public aspect TareaLogger {
 		loggerTarea.info("Mensajes de advertencia: " + t.getCantMensajesIconoAdvertencia());
 		loggerTarea.info("Mensajes informativos: " + t.getCantMensajesIconoInformativo());
 		loggerTarea.info("Mensajes interrogativos: " + t.getCantMensajesIconoPregunta());
+		t= null;
 		
 	}
 	public void grabar(String reg){

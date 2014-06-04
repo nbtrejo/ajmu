@@ -26,5 +26,6 @@ public class TareaMonitoreo extends Thread{
 				e.printStackTrace();
 			}
 		}
+		tareaMonitoreada = null;
     }
 }

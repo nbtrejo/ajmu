@@ -15,8 +15,6 @@ import javax.swing.JOptionPane;
 
 public aspect TareaGradoSatisfaccion {
 	
-	declare precedence: TareaGradoSatisfaccion, TareaLogger;
-	
 	Icon icon;
 	
 	pointcut registrarDatos(Tarea t):execution(void Tarea.finaliza(..))&&this(t);
@@ -36,5 +34,6 @@ public aspect TareaGradoSatisfaccion {
 		    t.setGradoSatisfaccion(s);
 		    return;
 		}
+		t = null;
 	}
 }
