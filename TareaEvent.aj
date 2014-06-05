@@ -18,7 +18,7 @@ import javax.swing.JOptionPane;
 
 import org.aspectj.lang.Signature;
 
-public aspect TareaEvent pertarget(addTarea()){
+public aspect TareaEvent perthis(addTarea()){
 	
 	
 	int nroEvento = 0;
