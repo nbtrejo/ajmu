@@ -41,7 +41,10 @@ public aspect TareaLogger {
 		loggerTarea.info("Mensajes interrogativos: " + t.getCantMensajesIconoPregunta());
 		loggerTarea.info("Sastifaccion: " + t.getGradoSatisfaccion());
 	}
-	public void registrarDatosParciales(Tarea t){
+	
+	pointcut deteccionEventos(Tarea t): execution(void Tarea.setCant*(..))&&this(t);
+	
+	after(Tarea t): deteccionEventos(t){
 		loggerTarea.info("================= RESULTADOS PARCIALES ====================");
 		loggerTarea.info("Tarea id " + t.getId() + " / Estado: En ejecución");
 		loggerTarea.info("Excepciones gestionadas: " + t.getCantExcepciones());
