@@ -17,11 +17,16 @@ public aspect TareaEvent {
 	
 	pointcut inicializacion():initialization(Tarea.new(String));
 	pointcut finalizacion():execution(void Tarea.finaliza(..));
+	after(): finalizacion(){
+		nroEvento = 0;
+		nroDialogo = 0;
+	}
 	
 	pointcut registrarInicio(Tarea tar):inicializacion()&&this(tar);
 	after(Tarea tar): registrarInicio(tar){
 		miTarea = tar;
 	}
+	
 	/**
 	 * POINCUT excepcionesAlInicio()
 	 * Captura las excepciones gestionadas por catch, en el flujo de control iniciado por el pointcut inicializacion()
