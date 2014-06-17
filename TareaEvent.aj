@@ -86,7 +86,7 @@ public  abstract aspect TareaEvent extends TareaConnect{
 	before(): noFinalizoTarea() {	
 		if((miTarea!=null)&&(!miTarea.isCompleta())){
 			TareaLogger.aspectOf().grabar("================= RESULTADOS FINALES ====================");
-			TareaLogger.aspectOf().grabar("La tarea id " + miTarea.getId() + " Estado: NO finalizada");		
+			TareaLogger.aspectOf().grabar("Tarea id " + miTarea.getId() + " Estado: NO finalizada");		
 			TareaLogger.aspectOf().grabar("Excepciones gestionadas: " + miTarea.getCantExcepciones());			
 			TareaLogger.aspectOf().grabar("Diálogos mostrados: " + miTarea.getCantDialogos());			
 			TareaLogger.aspectOf().grabar("Accesos a la documentación: " + miTarea.getCantAccesosDocumentacion());

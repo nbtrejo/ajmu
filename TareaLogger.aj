@@ -22,14 +22,14 @@ public aspect TareaLogger {
 	
 	after(Tarea t): registrarInicio(t){
 		loggerTarea.info("===================== INICIO TAREA: "+ t.getDescripcion() +" =========================");		
-		loggerTarea.info("La tarea id " + t.getId() + " Estado: Iniciada");
+		loggerTarea.info("Tarea id " + t.getId() + " Estado: Iniciada");
 	}
 	
 	pointcut registrarDatos(Tarea t):execution(void Tarea.finaliza(..))&&this(t);
 	
 	after(Tarea t): registrarDatos(t){
 		loggerTarea.info("================= RESULTADOS FINALES ====================");
-		loggerTarea.info("La tarea id " + t.getId() + " Estado: Finalizada");
+		loggerTarea.info("Tarea id " + t.getId() + " Estado: Finalizada");
 		loggerTarea.info("Tiempo de ejecución: " + t.tiempoDeEjecucion() + "ms" + "("+ t.tiempoDeEjecucionSeg() +")");
 		loggerTarea.info("Excepciones gestionadas: " + t.getCantExcepciones());
 		loggerTarea.info("Diálogos mostrados: " + t.getCantDialogos());
