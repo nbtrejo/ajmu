@@ -21,15 +21,15 @@ public aspect TareaLogger {
 	pointcut registrarInicio(Tarea t):initialization(Tarea.new(String))&&this(t);
 	
 	after(Tarea t): registrarInicio(t){
-		loggerTarea.info("===================== INICIO TAREA: "+ t.getDescripcion() +" =========================");
-		loggerTarea.info("La tarea id " + t.getId() + " ha sido iniciada.");
+		loggerTarea.info("===================== INICIO TAREA: "+ t.getDescripcion() +" =========================");		
+		loggerTarea.info("La tarea id " + t.getId() + " Estado: Iniciada");
 	}
 	
 	pointcut registrarDatos(Tarea t):execution(void Tarea.finaliza(..))&&this(t);
 	
 	after(Tarea t): registrarDatos(t){
 		loggerTarea.info("================= RESULTADOS FINALES ====================");
-		loggerTarea.info("La tarea id " + t.getId() + " ha finalizado");
+		loggerTarea.info("La tarea id " + t.getId() + " Estado: Finalizada");
 		loggerTarea.info("Tiempo de ejecución: " + t.tiempoDeEjecucion() + "ms" + "("+ t.tiempoDeEjecucionSeg() +")");
 		loggerTarea.info("Excepciones gestionadas: " + t.getCantExcepciones());
 		loggerTarea.info("Diálogos mostrados: " + t.getCantDialogos());
@@ -41,7 +41,10 @@ public aspect TareaLogger {
 		loggerTarea.info("Mensajes interrogativos: " + t.getCantMensajesIconoPregunta());
 		loggerTarea.info("Sastifaccion: " + t.getGradoSatisfaccion());
 	}
-	public void registrarDatosParciales(Tarea t){
+
+	pointcut deteccionEventos(Tarea t): execution(void Tarea.setCant*(..))&&this(t);
+	
+	after(Tarea t): deteccionEventos(t){
 		loggerTarea.info("================= RESULTADOS PARCIALES ====================");
 		loggerTarea.info("Tarea id " + t.getId() + " / Estado: En ejecución");
 		loggerTarea.info("Excepciones gestionadas: " + t.getCantExcepciones());
@@ -54,6 +57,7 @@ public aspect TareaLogger {
 		loggerTarea.info("Mensajes interrogativos: " + t.getCantMensajesIconoPregunta());
 		
 	}
+	
 	public void grabar(String reg){
 		loggerEventos.info("<==> "+reg);
 	}
