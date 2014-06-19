@@ -22,14 +22,15 @@ public aspect TareaLogger {
 	
 	after(Tarea t): registrarInicio(t){
 		loggerTarea.info("===================== INICIO TAREA: "+ t.getDescripcion() +" =========================");
-		loggerTarea.info("La tarea id " + t.getId() + " ha sido iniciada.");
+		loggerTarea.info("Tarea id " + t.getId() + " / Estado: " + t.getEstado());
+		t.setEstado("En ejecución");
 	}
 	
 	pointcut registrarDatos(Tarea t):execution(void Tarea.finaliza(..))&&this(t);
 	
 	after(Tarea t): registrarDatos(t){
 		loggerTarea.info("================= RESULTADOS FINALES ====================");
-		loggerTarea.info("La tarea id " + t.getId() + " ha finalizado");
+		loggerTarea.info("Tarea id " + t.getId() + " / Estado: " + t.getEstado());
 		loggerTarea.info("Tiempo de ejecución: " + t.tiempoDeEjecucion() + "ms" + "("+ t.tiempoDeEjecucionSeg() +")");
 		loggerTarea.info("Excepciones gestionadas: " + t.getCantExcepciones());
 		loggerTarea.info("Diálogos mostrados: " + t.getCantDialogos());
@@ -42,11 +43,11 @@ public aspect TareaLogger {
 		loggerTarea.info("Sastifaccion: " + t.getGradoSatisfaccion());
 	}
 	
-	pointcut deteccionEventos(Tarea t): execution(void Tarea.setCant*(..))&&this(t);
+	pointcut deteccionEventos(Tarea t): call(void Tarea.setCant*(..))&&target(t)||call(void Tarea.setEstado(..))&&target(t);
 	
 	after(Tarea t): deteccionEventos(t){
 		loggerTarea.info("================= RESULTADOS PARCIALES ====================");
-		loggerTarea.info("Tarea id " + t.getId() + " / Estado: En ejecución");
+		loggerTarea.info("Tarea id " + t.getId() + " / Estado: " + t.getEstado());
 		loggerTarea.info("Excepciones gestionadas: " + t.getCantExcepciones());
 		loggerTarea.info("Diálogos mostrados: " + t.getCantDialogos());
 		loggerTarea.info("Accesos a la documentación: " + t.getCantAccesosDocumentacion());

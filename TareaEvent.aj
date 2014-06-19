@@ -20,6 +20,7 @@ public aspect TareaEvent {
 	after(): finalizacion(){
 		nroEvento = 0;
 		nroDialogo = 0;
+		
 	}
 	
 	pointcut registrarInicio(Tarea tar):inicializacion()&&this(tar);
@@ -81,6 +82,7 @@ public aspect TareaEvent {
 	 * Captura el cierre de la aplicación cuando la tarea aún no finaliza
 	 */
 	pointcut noFinalizoTarea():call(void java.lang.System.exit(..))&&!cflow(finalizacion())&&!cflow(adviceexecution());
+
 	/**
 	 * ADVICE before()
 	 * Si el cierre inesperado de la aplicación es capturado cuando la tarea aún no ha finalizado, se registra el estado de los contadores
@@ -88,8 +90,10 @@ public aspect TareaEvent {
 	 */
 	before(): noFinalizoTarea() {	
 		if((miTarea!=null)&&(!miTarea.isCompleta())){
-			TareaLogger.aspectOf().grabar("================= RESULTADOS FINALES ====================");
-			TareaLogger.aspectOf().grabar("La tarea id " + miTarea.getId() + " NO ha finalizado");		
+			miTarea.setEstado("No finalizada");
+			miTarea = null;
+			/*TareaLogger.aspectOf().grabar("================= RESULTADOS FINALES ====================");
+			TareaLogger.aspectOf().grabar("Tarea id " + miTarea.getId() + " Estado: NO finalizada");		
 			TareaLogger.aspectOf().grabar("Excepciones gestionadas: " + miTarea.getCantExcepciones());			
 			TareaLogger.aspectOf().grabar("Diálogos mostrados: " + miTarea.getCantDialogos());			
 			TareaLogger.aspectOf().grabar("Accesos a la documentación: " + miTarea.getCantAccesosDocumentacion());
@@ -97,7 +101,7 @@ public aspect TareaEvent {
 			TareaLogger.aspectOf().grabar("Mensajes de error: " + miTarea.getCantMensajesIconoError());
 			TareaLogger.aspectOf().grabar("Mensajes de advertencia: " + miTarea.getCantMensajesIconoAdvertencia());
 			TareaLogger.aspectOf().grabar("Mensajes informativos: " + miTarea.getCantMensajesIconoInformativo());
-			TareaLogger.aspectOf().grabar("Mensajes interrogativos: " + miTarea.getCantMensajesIconoPregunta());
+			TareaLogger.aspectOf().grabar("Mensajes interrogativos: " + miTarea.getCantMensajesIconoPregunta());*/
 		}
 	}
 	/**

@@ -26,7 +26,9 @@ public class Tarea {
 	private int cantMensajesIconoAdvertencia;
 	private int cantMensajesIconoPregunta;
 	private String gradoSatisfaccion;
+	private String estado;
     
+
 	public Tarea(String desc) {		
 		id	= desc.replaceAll(" ", "_") + "_"+ System.currentTimeMillis();
 		completa = false;
@@ -36,6 +38,7 @@ public class Tarea {
 		descripcion = desc;
 		cantAccesosDocumentacion = 0;
 		gradoSatisfaccion = "No sabe / No responde";
+		estado = "Iniciada";
 	}
 	
 	public void setGradoSatisfaccion(String gradoSatisfaccion) {
@@ -64,7 +67,8 @@ public class Tarea {
 	}
 	public void finaliza(){	
 			finalizacion = System.currentTimeMillis();
-			completa = true;		
+			completa = true;	
+			estado = "Finalizada";	
 	}
 	public void setCantExcepciones() {
 		this.cantExcepciones++;
@@ -114,7 +118,13 @@ public class Tarea {
 	public int getCantMensajesIconoPregunta() {
 		return this.cantMensajesIconoPregunta;
 	} 
-	
+	public String getEstado() {
+		return estado;
+	}
+
+	public void setEstado(String estado) {
+		this.estado = estado;
+	}
 	public Long tiempoDeEjecucion(){
 		return finalizacion - inicializacion;
 	}
