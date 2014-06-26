@@ -8,7 +8,7 @@ import javax.swing.JOptionPane;
 
 import org.aspectj.lang.Signature;
 
-public aspect TareaEvent {
+abstract aspect TareaEvent {
 	
 	Tarea miTarea = null;
 	private int nroEvento = 0;
@@ -78,17 +78,18 @@ public aspect TareaEvent {
 		}
 	}
 	/**
-	 * POINTCUT noFinalizoTarea()
+	 * POINTCUT condicionNoFinaliza()
 	 * Captura el cierre de la aplicación cuando la tarea aún no finaliza
 	 */
-	pointcut noFinalizoTarea():call(void java.lang.System.exit(..))&&!cflow(finalizacion())&&!cflow(adviceexecution());
+	abstract pointcut NoFinaliza();
+	pointcut condicionNoFinaliza():(call(void java.lang.System.exit(..))&&!cflow(finalizacion())&&!cflow(adviceexecution()))||(NoFinaliza());
 
 	/**
 	 * ADVICE before()
 	 * Si el cierre inesperado de la aplicación es capturado cuando la tarea aún no ha finalizado, se registra el estado de los contadores
 	 * en el log a través del aspecto TareaLogger. 
 	 */
-	before(): noFinalizoTarea() {	
+	before(): condicionNoFinaliza() {	
 		if((miTarea!=null)&&(!miTarea.isCompleta())){
 			miTarea.setEstado("No finalizada");
 			miTarea = null;
