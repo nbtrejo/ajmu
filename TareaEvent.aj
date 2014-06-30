@@ -10,10 +10,15 @@ import org.aspectj.lang.Signature;
 
 abstract aspect TareaEvent {
 	
-	Tarea miTarea = null;
+	private static Tarea miTarea = null;
 	private int nroEvento = 0;
 	private int nroDialogo	= 0;
 	
+	pointcut flujoInicializacion(): cflow(inicializacion());
+	pointcut flujoFinalizacion(): cflow(finalizacion());
+	pointcut flujoAspecto(): cflow(adviceexecution());
+	
+	pointcut tareaEnEjecucion(): if ((miTarea!=null) && (!miTarea.isCompleta()));
 	
 	pointcut inicializacion():initialization(Tarea.new(String));
 	pointcut finalizacion():execution(void Tarea.finaliza(..));
@@ -32,7 +37,7 @@ abstract aspect TareaEvent {
 	 * POINCUT excepcionesAlInicio()
 	 * Captura las excepciones gestionadas por catch, en el flujo de control iniciado por el pointcut inicializacion()
 	 */
-	pointcut excepcionesAlInicio(Throwable e): cflow(inicializacion())&&!cflow(adviceexecution())&&handler(Throwable+)&&args(e);
+	pointcut excepcionesAlInicio(Throwable e): flujoInicializacion()&&!flujoAspecto()&&handler(Throwable+)&&args(e);
 	/**
 	 * ADVICE before()
 	 * Cuando una excepción es capturada, se registra en el log invocando al aspecto TareaLogger, y se contabiliza su ocurrencia en el objeto miTarea. 
@@ -56,33 +61,30 @@ abstract aspect TareaEvent {
 	 * POINTCUT excepcionesEnEjecucion()
 	 * Captura las excepciones gestionadas por catch, en el flujo de control LUEGO de la accion definida en pointcut inicializacion()
 	 */
-	pointcut excepcionesEnEjecucion(Throwable e):!cflow(inicializacion())&&!cflow(adviceexecution())&&handler(Throwable+)&&args(e);
+	pointcut excepcionesEnEjecucion(Throwable e):!flujoInicializacion()&&!flujoAspecto()&&handler(Throwable+)&&args(e)&&tareaEnEjecucion();
 	/**
 	 * ADVICE before()
 	 * Cuando una excepción es capturada, se registra en el log invocando al aspecto TareaLogger, y se contabiliza su ocurrencia en el objeto miTarea.
 	 * @param e es un objeto de la clase Throwable de la cual heredan los diferentes tipos de excepciones que pueden ocurrir en una aplicación.
 	 */
 	before(Throwable e):excepcionesEnEjecucion(e){
-		if((miTarea!=null)&&(!miTarea.isCompleta())){			 
-			Signature sig = thisJoinPointStaticPart.getSignature();
-			String kind = thisJoinPointStaticPart.getKind();
-			String line =""+ thisJoinPointStaticPart.getSourceLocation().getLine();
-	        String sourceName = thisJoinPointStaticPart.getSourceLocation().getWithinType().getCanonicalName();
-	        
-	        String reg = "Excepción "+ ++nroEvento + ": Ocurrió una excepción en "+ sourceName+ "("+ kind +") línea " + line + " en el método " + sig + "(" + thisJoinPoint.toLongString() + ") Mensaje del error: " + e.getMessage();
-	    
-	        miTarea.setCantExcepciones();
-			
-	        TareaLogger.aspectOf().grabar(reg);
-						
-		}
+		Signature sig = thisJoinPointStaticPart.getSignature();
+		String kind = thisJoinPointStaticPart.getKind();
+		String line =""+ thisJoinPointStaticPart.getSourceLocation().getLine();
+        String sourceName = thisJoinPointStaticPart.getSourceLocation().getWithinType().getCanonicalName();
+        
+        String reg = "Excepción "+ ++nroEvento + ": Ocurrió una excepción en "+ sourceName+ "("+ kind +") línea " + line + " en el método " + sig + "(" + thisJoinPoint.toLongString() + ") Mensaje del error: " + e.getMessage();
+    
+        miTarea.setCantExcepciones();
+		
+        TareaLogger.aspectOf().grabar(reg);
 	}
 	/**
 	 * POINTCUT condicionNoFinaliza()
 	 * Captura el cierre de la aplicación cuando la tarea aún no finaliza
 	 */
 	abstract pointcut NoFinaliza();
-	pointcut condicionNoFinaliza():(call(void java.lang.System.exit(..))&&!cflow(finalizacion())&&!cflow(adviceexecution()))||(NoFinaliza());
+	pointcut condicionNoFinaliza():(call(void java.lang.System.exit(..))&&!flujoFinalizacion()&&!flujoAspecto()&&tareaEnEjecucion())||(NoFinaliza()&&tareaEnEjecucion());
 
 	/**
 	 * ADVICE before()
@@ -90,26 +92,14 @@ abstract aspect TareaEvent {
 	 * en el log a través del aspecto TareaLogger. 
 	 */
 	before(): condicionNoFinaliza() {	
-		if((miTarea!=null)&&(!miTarea.isCompleta())){
-			miTarea.setEstado("No finalizada");
-			miTarea = null;
-			/*TareaLogger.aspectOf().grabar("================= RESULTADOS FINALES ====================");
-			TareaLogger.aspectOf().grabar("Tarea id " + miTarea.getId() + " Estado: NO finalizada");		
-			TareaLogger.aspectOf().grabar("Excepciones gestionadas: " + miTarea.getCantExcepciones());			
-			TareaLogger.aspectOf().grabar("Diálogos mostrados: " + miTarea.getCantDialogos());			
-			TareaLogger.aspectOf().grabar("Accesos a la documentación: " + miTarea.getCantAccesosDocumentacion());
-			TareaLogger.aspectOf().grabar("Mensajes sin icono: " + miTarea.getCantMensajesSinIcono());
-			TareaLogger.aspectOf().grabar("Mensajes de error: " + miTarea.getCantMensajesIconoError());
-			TareaLogger.aspectOf().grabar("Mensajes de advertencia: " + miTarea.getCantMensajesIconoAdvertencia());
-			TareaLogger.aspectOf().grabar("Mensajes informativos: " + miTarea.getCantMensajesIconoInformativo());
-			TareaLogger.aspectOf().grabar("Mensajes interrogativos: " + miTarea.getCantMensajesIconoPregunta());*/
-		}
+		miTarea.setEstado("No finalizada");
+		miTarea = null;
 	}
 	/**
 	 * POINTCUT capturaDialogo()
 	 * Captura ventanas de tipo Dialog gestionadas en el flujo de control LUEGO de la accion definida en pointcut inicializacion()
 	 */
-	pointcut capturaDialogo(Dialog jd): !cflow(inicializacion())&&!cflow(adviceexecution()) && call( * *Dialog(..)) && target(jd);
+	pointcut capturaDialogo(Dialog jd): !flujoInicializacion()&&!flujoAspecto() && call( * *Dialog(..)) && target(jd) && tareaEnEjecucion();
 	/**
 	 * ADVICE before()
 	 * Registra información de la ventana de tipo Dialog cuando ésta es capturada por el pointcut.
@@ -118,29 +108,27 @@ abstract aspect TareaEvent {
 	 * @param jd puede ser cualquier objeto de tipo Dialog o JDialog.
 	 */
 	before(Dialog jd): capturaDialogo(jd){
-		if((miTarea!=null)&&(!miTarea.isCompleta())){	
-			if (thisJoinPoint.getTarget().getClass().getSuperclass().getCanonicalName().equals("javax.swing.JDialog") ||
-					thisJoinPoint.getTarget().getClass().getSuperclass().getCanonicalName().equals("java.awt.Dialog")){
-				
-				String tituloDialogo	= "Titulo: " + jd.getTitle();
-				
-				Signature sig = thisJoinPointStaticPart.getSignature();
-				String kind = thisJoinPointStaticPart.getKind();
-				String line =""+ thisJoinPointStaticPart.getSourceLocation().getLine();
-		        String sourceName = thisJoinPointStaticPart.getSourceLocation().getWithinType().getCanonicalName();
-		         
-		        String reg = "Dialogo: "+  + ++nroDialogo + "-> TITULO: " + tituloDialogo + ": Ocurrio un llamado en "+ sourceName+ "("+ kind +") linea " + line + " al metodo " + sig + "(" + thisJoinPoint.toLongString() + ")";
-		        
-		        miTarea.setCantDialogos();
-				TareaLogger.aspectOf().grabar(reg);
-			}		
-		}
+		if (thisJoinPoint.getTarget().getClass().getSuperclass().getCanonicalName().equals("javax.swing.JDialog") ||
+				thisJoinPoint.getTarget().getClass().getSuperclass().getCanonicalName().equals("java.awt.Dialog")){
+			
+			String tituloDialogo	= "Titulo: " + jd.getTitle();
+			
+			Signature sig = thisJoinPointStaticPart.getSignature();
+			String kind = thisJoinPointStaticPart.getKind();
+			String line =""+ thisJoinPointStaticPart.getSourceLocation().getLine();
+	        String sourceName = thisJoinPointStaticPart.getSourceLocation().getWithinType().getCanonicalName();
+	         
+	        String reg = "Dialogo: "+  + ++nroDialogo + "-> TITULO: " + tituloDialogo + ": Ocurrio un llamado en "+ sourceName+ "("+ kind +") linea " + line + " al metodo " + sig + "(" + thisJoinPoint.toLongString() + ")";
+	        
+	        miTarea.setCantDialogos();
+			TareaLogger.aspectOf().grabar(reg);
+		}		
 	}
 	/**
 	 * POINTCUT capturaOptionPane()
 	 * Captura ventanas de tipo JOptionPane gestionadas en el flujo de control LUEGO de la accion definida en pointcut inicializacion()
 	 */
-	pointcut capturaOptionPane(): !cflow(inicializacion())&&!cflow(adviceexecution())&&call(* javax.swing.JOptionPane+.show*Dialog(..)) && !within(ajmu.TareaGradoSatisfacccion.*);
+	pointcut capturaOptionPane(): !flujoInicializacion()&&!flujoAspecto()&&call(* javax.swing.JOptionPane+.show*Dialog(..)) && !within(ajmu.TareaGradoSatisfacccion.*)&& tareaEnEjecucion();
 	/**
 	 * ADVICE before()
 	 * cuando una ventana de tipo JOptionPane es capturada, se analiza si se trata de un mensaje informativo, una advertencia, 
@@ -148,71 +136,69 @@ abstract aspect TareaEvent {
 	 * atributo correspondiente en el objeto miTarea.
 	 */
 	before(): capturaOptionPane(){ 
-		if((miTarea!=null)&&(!miTarea.isCompleta())){
-			String tipoJOptionPane	= strTipoJOption(thisJoinPoint.getSignature().getName());
-			Object [] parametros	= thisJoinPoint.getArgs();			
-			String tituloMensaje	= parametros[2].toString();
-			int tipoIcono	= -1;
-			String tipoMensajeIconificado	= "SIN ICONO PERSONALIZADO";
-			if (tipoJOptionPane.equals("Message") || tipoJOptionPane.equals("InternalMessage")){
-				if (parametros.length == 4) { 
-					//System.out.println("JOptionPane MESSAGE. Titulo: " + parametros[2] + " tipo Mensaje: " + tipoIconoMensajeJOption(parametros[3]));
-					tipoIcono	= Integer.parseInt(parametros[3].toString());
-					tipoMensajeIconificado	= tipoIconoMensajeJOption(parametros[3]);
-				} else {
-					tipoIcono	= 1;
-					tipoMensajeIconificado	= "INFORMATIVO" ;
-				} 
-			}else if (tipoJOptionPane.equals("Option") || tipoJOptionPane.equals("InternalOption")) {
-				if (parametros.length == 5) { 
-					//System.out.println("JOptionPane OPTION. Titulo: " + parametros[2] + " tipo Mensaje: " + tipoIconoMensajeJOption(parametros[4]));
-					tipoIcono	= Integer.parseInt(parametros[4].toString());				
-					tipoMensajeIconificado	= "BOTONES PERSONALIZADOS " + tipoIconoMensajeJOption(parametros[4]);
-				}
-			}else if (tipoJOptionPane.equals("Input") || tipoJOptionPane.equals("InternalInput")) {	
-				 if (parametros.length == 4) { 
-					 //System.out.println("JOptionPane INPUT. Titulo: " + parametros[2] + " tipo Mensaje: " + tipoIconoMensajeJOption(parametros[3]));
-					 tipoIcono	= Integer.parseInt(parametros[3].toString());
-					 tipoMensajeIconificado	= "ENTRADA DE USUARIO " + tipoIconoMensajeJOption(parametros[3]);
-				}else {
-					tipoIcono	= 3;
-					tipoMensajeIconificado	= "ENTRADA DE USUARIO INTERROGATIVO" ;
-				} 
-			}else if (tipoJOptionPane.equals("Confirm") || tipoJOptionPane.equals("InternalConfirm")) {	
-				 if (parametros.length == 4) { 
-					 //System.out.println("JOptionPane CONFIRM.titulo: " + parametros[2]);	
-					 tipoIcono	= 3;
-					 tipoMensajeIconificado	= "CONFIRMACION INTERROGATIVO" ;
-				 	}
-				 	else if (parametros.length == 5) { 
-				 		//System.out.println("JOptionPane CONFIRM. Titulo: " + parametros[2] + " tipo Mensaje: " + tipoIconoMensajeJOption(parametros[4]));
-				 		tipoIcono	= Integer.parseInt(parametros[4].toString());
-				 		tipoMensajeIconificado	= "CONFIRMACION " + tipoIconoMensajeJOption(parametros[4]);
-				 	} else {
-				 		tipoIcono	= 3;
-						tipoMensajeIconificado	= "CONFIRMACION INTERROGATIVO" ;
-					} 				
+		String tipoJOptionPane	= strTipoJOption(thisJoinPoint.getSignature().getName());
+		Object [] parametros	= thisJoinPoint.getArgs();			
+		String tituloMensaje	= parametros[2].toString();
+		int tipoIcono	= -1;
+		String tipoMensajeIconificado	= "SIN ICONO PERSONALIZADO";
+		if (tipoJOptionPane.equals("Message") || tipoJOptionPane.equals("InternalMessage")){
+			if (parametros.length == 4) { 
+				//System.out.println("JOptionPane MESSAGE. Titulo: " + parametros[2] + " tipo Mensaje: " + tipoIconoMensajeJOption(parametros[3]));
+				tipoIcono	= Integer.parseInt(parametros[3].toString());
+				tipoMensajeIconificado	= tipoIconoMensajeJOption(parametros[3]);
+			} else {
+				tipoIcono	= 1;
+				tipoMensajeIconificado	= "INFORMATIVO" ;
+			} 
+		}else if (tipoJOptionPane.equals("Option") || tipoJOptionPane.equals("InternalOption")) {
+			if (parametros.length == 5) { 
+				//System.out.println("JOptionPane OPTION. Titulo: " + parametros[2] + " tipo Mensaje: " + tipoIconoMensajeJOption(parametros[4]));
+				tipoIcono	= Integer.parseInt(parametros[4].toString());				
+				tipoMensajeIconificado	= "BOTONES PERSONALIZADOS " + tipoIconoMensajeJOption(parametros[4]);
 			}
-			//incrementar los contadores en la clase Tarea
-			switch (tipoIcono){
-				case -1: miTarea.setCantMensajesSinIcono();break;
-				case 0: miTarea.setCantMensajesIconoError();break;
-				case 1: miTarea.setCantMensajesIconoInformativo();break;
-				case 2: miTarea.setCantMensajesIconoAdvertencia();break;
-				case 3: miTarea.setCantMensajesIconoPregunta();break;
-			}
-				
-			Signature sig = thisJoinPointStaticPart.getSignature();
-			String kind = thisJoinPointStaticPart.getKind();
-			String line =""+ thisJoinPointStaticPart.getSourceLocation().getLine();
-		    String sourceName = thisJoinPointStaticPart.getSourceLocation().getWithinType().getCanonicalName();
-		         
-		    String reg = "Dialogo: "+  + ++nroDialogo + "-> TITULO: '" +tituloMensaje + "' TIPO DE MENSAJE: " + tipoMensajeIconificado + " : Ocurrio un llamado en "+ sourceName+ " ("+ kind +") linea " + line + " al metodo " + sig + "(" + thisJoinPoint.toLongString() + ")";
-		        
-		    miTarea.setCantDialogos();
-			TareaLogger.aspectOf().grabar(reg);
-				
+		}else if (tipoJOptionPane.equals("Input") || tipoJOptionPane.equals("InternalInput")) {	
+			 if (parametros.length == 4) { 
+				 //System.out.println("JOptionPane INPUT. Titulo: " + parametros[2] + " tipo Mensaje: " + tipoIconoMensajeJOption(parametros[3]));
+				 tipoIcono	= Integer.parseInt(parametros[3].toString());
+				 tipoMensajeIconificado	= "ENTRADA DE USUARIO " + tipoIconoMensajeJOption(parametros[3]);
+			}else {
+				tipoIcono	= 3;
+				tipoMensajeIconificado	= "ENTRADA DE USUARIO INTERROGATIVO" ;
+			} 
+		}else if (tipoJOptionPane.equals("Confirm") || tipoJOptionPane.equals("InternalConfirm")) {	
+			 if (parametros.length == 4) { 
+				 //System.out.println("JOptionPane CONFIRM.titulo: " + parametros[2]);	
+				 tipoIcono	= 3;
+				 tipoMensajeIconificado	= "CONFIRMACION INTERROGATIVO" ;
+			 	}
+			 	else if (parametros.length == 5) { 
+			 		//System.out.println("JOptionPane CONFIRM. Titulo: " + parametros[2] + " tipo Mensaje: " + tipoIconoMensajeJOption(parametros[4]));
+			 		tipoIcono	= Integer.parseInt(parametros[4].toString());
+			 		tipoMensajeIconificado	= "CONFIRMACION " + tipoIconoMensajeJOption(parametros[4]);
+			 	} else {
+			 		tipoIcono	= 3;
+					tipoMensajeIconificado	= "CONFIRMACION INTERROGATIVO" ;
+				} 				
 		}
+		//incrementar los contadores en la clase Tarea
+		switch (tipoIcono){
+			case -1: miTarea.setCantMensajesSinIcono();break;
+			case 0: miTarea.setCantMensajesIconoError();break;
+			case 1: miTarea.setCantMensajesIconoInformativo();break;
+			case 2: miTarea.setCantMensajesIconoAdvertencia();break;
+			case 3: miTarea.setCantMensajesIconoPregunta();break;
+		}
+			
+		Signature sig = thisJoinPointStaticPart.getSignature();
+		String kind = thisJoinPointStaticPart.getKind();
+		String line =""+ thisJoinPointStaticPart.getSourceLocation().getLine();
+	    String sourceName = thisJoinPointStaticPart.getSourceLocation().getWithinType().getCanonicalName();
+	         
+	    String reg = "Dialogo: "+  + ++nroDialogo + "-> TITULO: '" +tituloMensaje + "' TIPO DE MENSAJE: " + tipoMensajeIconificado + " : Ocurrio un llamado en "+ sourceName+ " ("+ kind +") linea " + line + " al metodo " + sig + "(" + thisJoinPoint.toLongString() + ")";
+	        
+	    miTarea.setCantDialogos();
+		TareaLogger.aspectOf().grabar(reg);
+			
 	}
 	/**
 	 * EXTRAER string del tipo del metodo show*Dialog de JOptionPane

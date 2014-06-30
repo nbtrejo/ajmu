@@ -40,7 +40,7 @@ public aspect TareaLogger {
 		loggerTarea.info("Mensajes de advertencia: " + t.getCantMensajesIconoAdvertencia());
 		loggerTarea.info("Mensajes informativos: " + t.getCantMensajesIconoInformativo());
 		loggerTarea.info("Mensajes interrogativos: " + t.getCantMensajesIconoPregunta());
-		loggerTarea.info("Sastifaccion: " + t.getGradoSatisfaccion());
+		loggerTarea.info("Satisfaccion: " + t.getGradoSatisfaccion());
 	}
 	
 	pointcut deteccionEventos(Tarea t): call(void Tarea.setCant*(..))&&target(t)||call(void Tarea.setEstado(..))&&target(t);
