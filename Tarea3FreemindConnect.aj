@@ -51,8 +51,5 @@ public aspect Tarea3FreemindConnect extends TareaConnect{
 	
 	pointcut finalizacion():execution(* freemind.modes.ControllerAdapter.SaveAsAction.*(..))||execution(* freemind.modes.ControllerAdapter.SaveAction.*(..));
 	
-	pointcut accesoDocumentacion():execution(void freemind.controller.Controller.DocumentationAction.actionPerformed(ActionEvent));
-	
-	
 	
 }

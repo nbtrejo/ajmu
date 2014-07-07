@@ -10,8 +10,6 @@
 */ 
 package ajmu;
 
-import java.awt.event.ActionEvent;
-
 /**
  * Tarea2FreemindConnect. Declara los pointcut de inicio y fin de la tarea que se define a continuación.
  * 
@@ -49,9 +47,6 @@ public aspect Tarea2FreemindConnect extends TareaConnect{
 	}
 	
 	pointcut finalizacion():execution(* freemind.modes.ControllerAdapter.SaveAsAction.*(..))||execution(* freemind.modes.ControllerAdapter.SaveAction.*(..));
-	
-	pointcut accesoDocumentacion():execution(void freemind.controller.Controller.DocumentationAction.actionPerformed(ActionEvent));
-	
 	
 	
 }
